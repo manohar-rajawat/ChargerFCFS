@@ -29,7 +29,48 @@ class FCFS:
             'endTime': None,
             'queue': None
         },
-
+        2: {
+            'idle': None,
+            'power': 0,
+            'vehicle': None,
+            'endTime': None,
+            'queue': None,
+        },
+        3: {
+            'idle': None,
+            'power': 0,
+            'vehicle': None,
+            'endTime': None,
+            'queue': None,
+        },
+        4: {
+            'idle': None,
+            'power': 0,
+            'vehicle': None,
+            'endTime': None,
+            'queue': None,
+        },
+        5: {
+            'idle': None,
+            'power': 0,
+            'vehicle': None,
+            'endTime': None,
+            'queue': None,
+        },
+        6: {
+            'idle': None,
+            'power': 0,
+            'vehicle': None,
+            'endTime': None,
+            'queue': None,
+        },
+        7: {
+            'idle': None,
+            'power': 0,
+            'vehicle': None,
+            'endTime': None,
+            'queue': None,
+        }
     }
     length = len(queueList)
 
