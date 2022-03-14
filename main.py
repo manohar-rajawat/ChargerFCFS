@@ -3,6 +3,7 @@ import datetime
 import sys
 from collections import deque
 from pprint import pprint
+from threading import Timer
 DATABASE_URL = 'postgres://jquhqgyhylloea:c80fe3522ab54123e20fbc097cd62c57bf3c4d78302302bd083d67d76940ffe6@ec2-54-211-160-34.compute-1.amazonaws.com:5432/dcia1g3rroe5u7'
 
 
@@ -102,6 +103,18 @@ class FCFS:
             if connection is not None:
                 connection.close()
 
+    def jobDone(self, charger):
+        if len(self.queueList[charger]['queue']):
+            self.queueList[charger]['vehicle'] = self.queueList[charger]['queue'].popleft(
+            )
+        else:
+            self.queueList[charger]['vehicle'] = None
+            self.queueList[charger]['idle'] = True
+
+    def scheduleJob(self, charger, requiredMinutes):
+        t = Timer(requiredMinutes * 60, self.jobDone(charger))
+        t.start()
+
     def addVehicleToCharger(self, charger, vehicle, addToQueue=None):
         requiredMinutes = int((vehicle.requestedPower * 60) /
                               self.queueList[charger]['power'])
@@ -121,6 +134,7 @@ class FCFS:
             self.queueList[charger]['idle'] = False
             self.queueList[charger]['endTime'] = expectedDepartureTime
             vehicle.chargingEndTime = expectedDepartureTime
+            self.scheduleJob(charger, requiredMinutes)
             return True
         else:
             return False
@@ -181,6 +195,12 @@ class FCFS:
         else:
             print("Please enter a valid charger")
 
+    def showBill(self, vehicle):
+        return vehicle.requestedPower * 10 + self.getConnectionCharge()  # Constant this time
+
+    def getConnectionCharge(self, vehicle):
+        return 50
+
 
 if __name__ == "__main__":
     station = FCFS()
@@ -190,14 +210,16 @@ if __name__ == "__main__":
         2: ['Please Enter Battery Status: ', None],
         3: ['Please Enter Requested Status: ', None],
         4: ['Please Enter Battery Capacity: ', None],
-        5: ['Please Enter Departure Date Time: ', None],
+        5: ['Please Enter Vehicle Id', None],
+        6: ['Please Enter Departure Date Time: ', None],
     }
     menu_options = {
         1: 'Add a vehicle',
         2: 'Show charger details',
         3: 'Show charger active car',
         4: 'Show charger queue',
-        5: 'Exit',
+        5: 'Show vehicle bill',
+        6: 'Exit',
     }
 
     def print_addcar():
@@ -228,7 +250,7 @@ if __name__ == "__main__":
         key = input('Enter your choice : ')
         try:
             intKey = int(key)
-            if intKey < 0 or intKey > 5 or intKey == 5:
+            if intKey < 0 or intKey > 6 or intKey == 6:
                 raise Exception()
             else:
                 if intKey == 1:
@@ -239,6 +261,8 @@ if __name__ == "__main__":
                     station.showActiveVehicle()
                 elif intKey == 4:
                     station.showActiveQueue()
+                elif intKey == 5:
+                    station.showBill()
         except Exception as e:
             print(e)
             print('Thank you!')
